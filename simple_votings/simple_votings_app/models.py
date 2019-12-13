@@ -8,11 +8,15 @@ class modelTest(models.Model):
 
 class Voting(models.Model):
     text = models.CharField(max_length=200)
-    # TODO: Добавить ещё поля (комментарии, лайки, дата начала/конца)
+    likes = models.IntegerField(default=0)
+    start = models.DateTimeField()
+    # TODO: Добавить дату окончания
 
 
 class VotingAnswer(models.Model):
     text = models.CharField(max_length=200)
     voting = models.ForeignKey(to=Voting, on_delete=models.CASCADE)
-    # TODO: Добавиь ещё поле кол-ва голосований
+    votes_count = models.IntegerField(default=0)
 
+
+# TODO: Добавить модель комментариев

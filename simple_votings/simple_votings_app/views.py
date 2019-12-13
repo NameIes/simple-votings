@@ -1,4 +1,6 @@
+import datetime
 from django.shortcuts import render
+
 from .models import modelTest, Voting, VotingAnswer
 from .forms import AddVotingForm
 
@@ -12,7 +14,7 @@ def viewtest(request):
 
     context['question'] = quest
 
-    return render(request,'base.html', context)
+    return render(request, 'base.html', context)
 
 
 def bd_example(request):
@@ -21,7 +23,8 @@ def bd_example(request):
     if request.method == 'POST':
         form = AddVotingForm(request.POST)
         if form.is_valid():
-            voting_item = Voting(text=form.data['question'])
+            voting_item = Voting(text=form.data['question'],
+                                 start=datetime.datetime.now())
             voting_item.save()
 
             answers = form.data['answers'].split('\n')

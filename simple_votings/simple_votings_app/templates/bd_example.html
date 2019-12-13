@@ -18,9 +18,11 @@
                 <h2>{{ v_a.0.text }}</h2>
                 <ul>
                     {% for answer in v_a.1 %}
-                        <li>{{ answer.text }}</li>
+                        <li>{{ answer.text }} - Проголосовало {{ answer.votes_count }} человек</li>
                     {% endfor %}
                 </ul>
+                <p>Лайков: {{ v_a.0.likes }}</p>
+                <p>Дата создания: {{ v_a.0.start }}</p>
                 <hr><br>
             {% endfor %}
         {% else %}
