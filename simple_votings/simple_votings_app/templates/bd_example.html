@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Пример</title>
+    </head>
+    <body>
+        <form method="post" action="/bdex">
+            {% csrf_token %}
+            {{ form.question }}<br>
+            {{ form.answers }}<br>
+            <input type="submit" value="Создать">
+        </form>
+
+        {% if data %}
+            {% for v_a in data %}
+                <br><hr>
+                <h2>{{ v_a.0.text }}</h2>
+                <ul>
+                    {% for answer in v_a.1 %}
+                        <li>{{ answer.text }}</li>
+                    {% endfor %}
+                </ul>
+                <hr><br>
+            {% endfor %}
+        {% else %}
+            <h2>Голосований нет.</h2>
+        {% endif %}
+    </body>
+</html>

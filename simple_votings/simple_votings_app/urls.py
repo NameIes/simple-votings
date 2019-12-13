@@ -4,5 +4,5 @@ from .views import *
 
 urlpatterns = [
     path('', viewtest),
-
+    path('bdex', bd_example),
 ]
