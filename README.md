@@ -13,7 +13,29 @@
         python3 manage.py migrate
     
 ## Второй и последующие запуски
-    source venv/bin/activate
-    cd simple_votings
-    python3 manage.py runserver
-    
+
+  * Активируйте виртуальную среду:
+  
+        source venv/bin/activate
+	
+  *  Перейдите в каталог:
+
+        cd simple_votings
+  
+  *  Если вы меняли файл models.py:
+
+        python mange.py makemigrations
+        python mange.py migrate
+  
+  * Запустите сервер разработки:
+
+        python manage.py runserver
+
+  
+## Как создать администратора
+
+После шага migrate если у вас нет администратора создайте его командой:
+
+        python manage.py createsuperuser
+
+Надо будет задать имя пользователя, почтц(не реальную он не проверяет) и пароль. Например admin : admin
