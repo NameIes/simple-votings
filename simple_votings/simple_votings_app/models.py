@@ -11,7 +11,7 @@ class modelTest(models.Model):
 class Voting(models.Model):
     text = models.CharField(max_length=200)
     likes = models.IntegerField(default=0)
-    start = models.DateTimeField()
+    start = models.DateTimeField(auto_now=True)
 
     # answer =models.ManyToManyField(VotingAnswer)
 
@@ -23,17 +23,34 @@ class Voting(models.Model):
         "При добавлении будет отображатся text а не Объект"
         return u'%s' % (self.text)
 
+    def answers(self):
+        return VotingAnswer.objects.filter(voting=self)
     # TODO: Добавить дату окончания
+
 
 
 class VotingAnswer(models.Model):
     text = models.CharField(max_length=200)
     voting = models.ForeignKey(to=Voting, on_delete=models.CASCADE)
-    votes_count = models.IntegerField(default=0)
 
     def __unicode__(self):
         "При добавлении будет отображатся text а не Объект"
         return self.text
+
+    def action(self):
+        return "/vote/" + str(self.id)
+
+    def votes(self):
+        return Vote.objects.filter(answer=self)
+
+    def votes_count(self):
+        return len(self.votes())
+
+
+class Vote(models.Model):
+    answer = models.ForeignKey(to=VotingAnswer, on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now=True)
+
 
 
 # TODO: Добавить модель комментариев
