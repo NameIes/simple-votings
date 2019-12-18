@@ -39,3 +39,20 @@
         python manage.py createsuperuser
 
 Надо будет задать имя пользователя, почтц(не реальную он не проверяет) и пароль. Например admin : admin
+
+## Как выгрузить данные приложения и загрузить начальные данные
+
+Создаем бэкап данных приложения
+
+```
+python manage.py dumpdata --format=json simple_votings_app > simple_votings_app/fixtures/initial_data.json
+```
+
+Удаляем базу, а затем с нуля запускаем создание моделей в ней и в конце создаем суперпользователя и загружаем данные
+
+```
+  rm db.sqlite3 
+  python manage.py migrate
+  python manage.py createsuperuser
+  python manage.py loaddata simple_votings_app/initial_data.json 
+```
