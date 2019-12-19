@@ -1,4 +1,6 @@
 import datetime
+
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, HttpResponse
 
 from .models import *
@@ -25,7 +27,7 @@ def vote(request, answer):
 
     return HttpResponse('Ваш голос учитан!')
 
-
+@login_required
 def create_voting(request):
     context = {}
     context['form'] = AddVotingForm()
@@ -45,7 +47,7 @@ def create_voting(request):
 
     return render(request, 'bd_example.html', context)
 
-
+@login_required
 def bd_example(request):
     context = {'form': AddVotingForm()}
 
