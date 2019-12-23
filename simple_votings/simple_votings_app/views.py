@@ -3,7 +3,7 @@ import datetime
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, HttpResponse
 
-from .models import *
+from .models import modelTest, Vote, VotingAnswer, Voting
 from .forms import AddVotingForm
 
 
@@ -25,7 +25,8 @@ def vote(request, answer):
         vote = Vote(answer=answer)
         vote.save()
 
-    return HttpResponse('Ваш голос учитан!')
+    return HttpResponse('Ваш голос учтён!')
+
 
 @login_required
 def create_voting(request):
@@ -47,29 +48,32 @@ def create_voting(request):
 
     return render(request, 'bd_example.html', context)
 
+
 @login_required
 def bd_example(request):
-    context = {'form': AddVotingForm()}
+    context = {}
+    context['flag'] = 'Appear'
+    # context = {'form': AddVotingForm()}
 
-    if request.method == 'POST':
-        form = AddVotingForm(request.POST)
-        if form.is_valid():
-            voting_item = Voting(text=form.data['question'],
-                                 start=datetime.datetime.now())
-            voting_item.save()
+    # if request.method == 'POST':
+    #     form = AddVotingForm(request.POST)
+    #     if form.is_valid():
+    #         voting_item = Voting(text=form.data['question'],
+    #                              start=datetime.datetime.now())
+    #         voting_item.save()
 
-            answers = form.data['answers'].split('\n')
-            for i in answers:
-                if len(i) <= 200:
-                    answer_item = VotingAnswer(text=i, voting=voting_item)
-                    answer_item.save()
+    #         answers = form.data['answers'].split('\n')
+    #         for i in answers:
+    #             if len(i) <= 200:
+    #                 answer_item = VotingAnswer(text=i, voting=voting_item)
+    #                 answer_item.save()
 
-    votings = Voting.objects.all()
-    lst = []
-    for voting in votings:
-        lst.append((voting, VotingAnswer.objects.filter(voting=voting)))
+    context['votings'] = Voting.objects.all()
+    #lst = []
+    #for voting in votings:
+    #    lst.append((voting, VotingAnswer.objects.filter(voting=voting)))
 
-    if len(lst) > 0:
-        context['data'] = lst
+    #if len(lst) > 0:
+    #    context['data'] = lst
 
     return render(request, 'bd_example.html', context)
