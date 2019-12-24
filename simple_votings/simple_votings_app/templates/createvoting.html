@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Создание голосования</title>
+    </head>
+    <body>
+        <h1>Создание голосования</h1>
+        <form action="/create/" method="post" id="create_voting">
+            {% csrf_token %}
+            {{ form.question }} <br><br>
+            <div id="fields">
+                <p><input type="text" name="answer0" placeholder="Ваш ответ" required></p>
+            </div>
+
+            <input type="button" value="Добавить поле" id="addfield"> <br>
+            <input type="hidden" name="answers_count" value="1" id="count">
+            <script>
+                function addfield() {
+                    var p = d.createElement('p'),
+                        cloneField = field.cloneNode();
+                    count.value = parseInt(count.value) + 1 + '';
+                    cloneField.value = '';
+                    cloneField.name = 'answer' + (parseInt(count.value) - 1)
+                    p.appendChild(cloneField);
+                    newFields.appendChild(p);
+                    return false;
+                }
+                var d = document,
+                    myForm = d.getElementById('create_voting'),
+                    newFields = myForm.querySelector('#fields'),
+                    field = myForm.querySelector('input[type=text]'),
+                    butAdd = d.getElementById('addfield'),
+                    count = d.getElementById('count');
+                butAdd.addEventListener('click', addfield, false);
+            </script>
+
+            <input type="submit" value="Создать">
+        </form>
+    </body>
+</html>

@@ -1,40 +1,51 @@
 # -*- coding: utf-8 -*-
+from django.contrib.auth.models import User
 from django.db import models
 from django.contrib import admin
 
 
-class modelTest(models.Model):
-    question = models.CharField(max_length=50)
-    click_count = models.IntegerField()
-
-
 class Voting(models.Model):
-    text = models.CharField(max_length=200)
-    likes = models.IntegerField(default=0)
-    start = models.DateTimeField(auto_now=True)
+    text = models.CharField(max_length=500)
+    start_time = models.DateTimeField(auto_now=True)
+    end_time = models.DateTimeField(null=True, default=None)
 
-    # answer =models.ManyToManyField(VotingAnswer)
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
 
     def __str__(self):
-        "При добавлении будет отображатся text а не Объект"
         return "%s" % (self.text)
 
     def __unicode__(self):
-        "При добавлении будет отображатся text а не Объект"
         return u'%s' % (self.text)
 
     def answers(self):
         return VotingAnswer.objects.filter(voting=self)
-    # TODO: Добавить дату окончания
 
+    def like(self):
+        return "/like/" + str(self.id)
+
+    def likes(self):
+        return Like.objects.filter(voting=self)
+
+    def likes_count(self):
+        return len(self.likes())
+
+    def comments(self):
+        return Comment.objects.filter(voting=self)
+
+
+class Like(models.Model):
+    date = models.DateTimeField(auto_now=True)
+
+    voting = models.ForeignKey(to=Voting, on_delete=models.CASCADE)
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
 
 
 class VotingAnswer(models.Model):
-    text = models.CharField(max_length=200)
+    text = models.CharField(max_length=500)
+
     voting = models.ForeignKey(to=Voting, on_delete=models.CASCADE)
 
     def __unicode__(self):
-        "При добавлении будет отображатся text а не Объект"
         return self.text
 
     def action(self):
@@ -48,12 +59,21 @@ class VotingAnswer(models.Model):
 
 
 class Vote(models.Model):
-    answer = models.ForeignKey(to=VotingAnswer, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now=True)
 
+    answer = models.ForeignKey(to=VotingAnswer, on_delete=models.CASCADE)
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
 
 
-# TODO: Добавить модель комментариев
+class Comment(models.Model):
+    date = models.DateTimeField(auto_now=True)
+    text = models.CharField(max_length=500)
+
+    voting = models.ForeignKey(to=Voting, on_delete=models.CASCADE)
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+
+
+"""
 class Example(models.Model):
     number = models.IntegerField(default=1)
     date = models.DateTimeField()
@@ -66,7 +86,7 @@ class ExampleAdmin(admin.ModelAdmin):
 
 
 class VotingAdmin(admin.ModelAdmin):
-    list_display = ('text', 'likes', 'start')
+    list_display = ('text', 'start')
 
 
 class VotingAnswerAdmin(admin.ModelAdmin):
@@ -76,3 +96,4 @@ class VotingAnswerAdmin(admin.ModelAdmin):
 admin.site.register(Example, ExampleAdmin)
 admin.site.register(Voting, VotingAdmin)
 admin.site.register(VotingAnswer, VotingAnswerAdmin)
+"""

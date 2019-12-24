@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Госолование</title>
+    </head>
+    <body>
+        <h1>{{ voting.text }}</h1>
+        {% for answer in voting.answers %}
+            {{ answer.text }} - Проголосовал(о) {{ answer.votes_count }} человек
+            <form method="post" action="{{answer.action}}">
+                {% csrf_token %}
+                <input type="submit" value="Проголосовать">
+            </form>
+        {% endfor %}
+        <h4>Информация о голосовании:</h4>
+        <p>Создатель {{ voting.user.username }}</p>
+        <p>Создано в {{ voting.start_time }}</p>
+        {% if voting.end_time %}
+            <p>Заканчивается в {{ voting.end_time }}</p>
+        {% endif %}
+        <form method="post" action="{{ voting.like }}">
+            {% csrf_token %}
+            <input type="submit" value="{{ voting.likes_count }} Лайкнуть">
+        </form>
+        <hr>
+        <h3>Добавить комментарий:</h3>
+        <form method="post" action="/voting/{{voting.id}}">
+            {% csrf_token %}
+            {{ form.comment }}
+            <input type="submit" value="Оставить комментарий">
+        </form>
+        <h3>Комментарии:</h3>
+        {% if voting.comments %}
+            {% for comment in voting.comments %}
+                <div style="background-color: #F0F8FF;">
+                    <h4>{{ comment.user.username }}:</h4>
+                    <p>{{ comment.text }}</p>
+                    <p>Создан в {{ comment.date }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Комментариев нет</p>
+        {% endif %}
+    </body>
+</html>
