@@ -73,7 +73,6 @@ class Comment(models.Model):
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
 
 
-"""
 class Example(models.Model):
     number = models.IntegerField(default=1)
     date = models.DateTimeField()
@@ -86,7 +85,7 @@ class ExampleAdmin(admin.ModelAdmin):
 
 
 class VotingAdmin(admin.ModelAdmin):
-    list_display = ('text', 'start')
+    list_display = ('text', 'user', 'start_time', 'end_time')
 
 
 class VotingAnswerAdmin(admin.ModelAdmin):
@@ -96,4 +95,3 @@ class VotingAnswerAdmin(admin.ModelAdmin):
 admin.site.register(Example, ExampleAdmin)
 admin.site.register(Voting, VotingAdmin)
 admin.site.register(VotingAnswer, VotingAnswerAdmin)
-"""
