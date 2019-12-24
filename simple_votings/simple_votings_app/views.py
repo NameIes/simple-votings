@@ -16,7 +16,7 @@ def viewtest(request):
 
     context['question'] = quest
 
-    return render(request, 'base.html', context)
+    return render(request, 'test.html', context)
 
 
 def vote(request, answer):
