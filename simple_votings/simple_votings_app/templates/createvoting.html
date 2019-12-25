@@ -14,6 +14,7 @@
             </div>
 
             <input type="button" value="Добавить поле" id="addfield"> <br>
+            <input type="button" value="Удалить поле" id="removefield"> <br>
             <input type="hidden" name="answers_count" value="1" id="count">
             <script>
                 function addfield() {
@@ -21,18 +22,28 @@
                         cloneField = field.cloneNode();
                     count.value = parseInt(count.value) + 1 + '';
                     cloneField.value = '';
-                    cloneField.name = 'answer' + (parseInt(count.value) - 1)
+                    cloneField.name = 'answer' + (parseInt(count.value) - 1);
+                    cloneField.id = 'answer' + (parseInt(count.value) - 2);
                     p.appendChild(cloneField);
                     newFields.appendChild(p);
                     return false;
+                }
+                function removefield() {
+                    if(parseInt(count.value) > 1) {
+                        var elem = document.getElementById('answer' + (parseInt(count.value) - 2));
+                        elem.remove();
+                        count.value = parseInt(count.value) - 1 + '';
+                    }
                 }
                 var d = document,
                     myForm = d.getElementById('create_voting'),
                     newFields = myForm.querySelector('#fields'),
                     field = myForm.querySelector('input[type=text]'),
                     butAdd = d.getElementById('addfield'),
-                    count = d.getElementById('count');
+                    count = d.getElementById('count'),
+                    butRemove = d.getElementById('removefield');
                 butAdd.addEventListener('click', addfield, false);
+                butRemove.addEventListener('click', removefield, false);
             </script>
 
             <input type="submit" value="Создать">
