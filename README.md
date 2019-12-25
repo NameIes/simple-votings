@@ -20,12 +20,12 @@
 	
   *  Перейдите в каталог:
 
-        cd simple_votings
+         cd simple_votings
   
   *  Если вы меняли файл models.py:
 
-        python mange.py makemigrations
-        python mange.py migrate
+         python mange.py makemigrations
+         python mange.py migrate
   
   * Запустите сервер разработки:
 
@@ -36,7 +36,7 @@
 
 После шага migrate если у вас нет администратора создайте его командой:
 
-        python manage.py createsuperuser
+    python manage.py createsuperuser
 
 Надо будет задать имя пользователя, почтц(не реальную он не проверяет) и пароль. Например admin : admin
 
@@ -56,3 +56,9 @@ python manage.py dumpdata --format=json simple_votings_app > simple_votings_app/
   python manage.py createsuperuser
   python manage.py loaddata simple_votings_app/initial_data.json 
 ```
+
+## Если вдруг ничего не работает
+Удалите файл db.sqlite3, затем удалите папку migrations в simple_votings_app и введите комманды
+
+    python manage.py makemigrations simple_votings_app
+    python manage.py migrate
