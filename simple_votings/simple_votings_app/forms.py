@@ -1,4 +1,5 @@
 from django import forms
+from .models import User, Profile
 
 
 class AddVotingForm(forms.Form):
@@ -18,3 +19,15 @@ class AddCommentForm(forms.Form):
                                   'placeholder': 'Ваш комментарий',
                                   'style': 'width: 90%;'
                               }))
+
+
+class UserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'email')
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ('bio',)

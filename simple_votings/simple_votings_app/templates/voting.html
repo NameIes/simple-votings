@@ -21,39 +21,36 @@
 		    </div>
         </div>
 
-        <hr>
-        <style>
-           ul.hr {
-            margin: 0;
-            padding: 4px;
-           }
-           ul.hr li {
-            display: inline;
-            margin-right: 5px;
-            padding: 3px;
-           }
-           .like-toggle{
-        </style>
+        <div class="card-footer">
+			<div class="d-flex justify-content-between">
+			    <div>
+                    <style>
+                        .text-muted {
+                            margin-right: 10px;
+                        }
+                    </style>
 
-        <form method="post" action="{{ voting.like }}">
-            {% csrf_token %}
-            <input type="submit" value="{{ voting.likes_count }} Лайкнуть">
-        </form>
-
-        <ul class="hr">
-            <li>Создатель {{ voting.user.username }}</li>
-            <li>Создано в {{ voting.start_time }}</li>
-            {% if voting.end_time %}
-            <li>Заканчивается в {{ voting.end_time }}</li>
-            {% endif %}
-        </ul>
-        <hr>
+                    <span class="text-muted">Создатель {{ voting.user.username }}</span>
+                    <span class="text-muted">Дата создания: {{ voting.start_time }}</span>
+                    {% if voting.end_time %}
+                        <span class="text-muted">Заканчивается в {{ voting.end_time }}</span>
+                    {% endif %}
+			    </div>
+			    <div>
+                    <form method="post" action="{{ voting.like }}" class="hr" style="float: left; margin: 0px;">
+                        {% csrf_token %}
+                        <input type="submit" value="♥ {{ voting.likes_count }}" class="btn btn-primary" style="padding: 1px 10px; background-color: #E52B50; border-color: #E52B50;">
+                    </form>
+			    </div>
+			</div>
+		    </div>
+        <hr style="margin: 0px;">
 
         <h3>Добавить комментарий:</h3>
         <form method="post" action="/voting/{{voting.id}}">
             {% csrf_token %}
             {{ form.comment }}
-            <input type="submit" value="Оставить комментарий">
+            <input class="btn btn-primary" type="submit" value="Оставить комментарий">
         </form>
         <h3>Комментарии:</h3>
         {% if voting.comments %}
