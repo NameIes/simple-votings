@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.contrib import admin
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 class modelTest(models.Model):
@@ -25,8 +28,8 @@ class Voting(models.Model):
 
     def answers(self):
         return VotingAnswer.objects.filter(voting=self)
-    # TODO: Добавить дату окончания
 
+    # TODO: Добавить дату окончания
 
 
 class VotingAnswer(models.Model):
@@ -52,7 +55,6 @@ class Vote(models.Model):
     date = models.DateTimeField(auto_now=True)
 
 
-
 # TODO: Добавить модель комментариев
 class Example(models.Model):
     number = models.IntegerField(default=1)
@@ -71,6 +73,28 @@ class VotingAdmin(admin.ModelAdmin):
 
 class VotingAnswerAdmin(admin.ModelAdmin):
     list_display = ('text', )
+
+
+class Profile(models.Model):
+    """Profile
+    Base User Model
+
+    """
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    bio = models.TextField(max_length=500, blank=True)
+    creation_time = models.DateTimeField(auto_now_add=True)
+    # TODO: Аватар, История(созданные голосования, лайки, голоса, жалобы)
+
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()
 
 
 admin.site.register(Example, ExampleAdmin)

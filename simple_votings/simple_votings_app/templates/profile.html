@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Аккаунт пользователя</title>
+    </head>
+    <body>
+	<form method="post">
+	    {% csrf_token %}
+	    {{ user_form.as_p }}
+	    {{ profile_form.as_p }}
+	    <button type="submit">Сохранить изменения</button>
+	</form>
+
+	{% if messages %}
+	    <ul class="messages">
+		{% for message in messages %}
+		    <li class="{{ message.tags }}">{{ message }}</li>
+		{% endfor %}
+	    </ul>
+	{% endif %}
+    </body>
+</html>

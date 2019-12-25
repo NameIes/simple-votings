@@ -9,4 +9,5 @@ urlpatterns = [
     path('vote/<int:answer>', vote),
     path('login/', au_views.LoginView.as_view()),
     path('logout/', au_views.LogoutView.as_view()),
+    path('accounts/profile/', update_profile, name='profile'),
 ]

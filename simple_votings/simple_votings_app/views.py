@@ -1,10 +1,15 @@
+# -*- coding: utf-8 -*-
 import datetime
+from django.db import IntegrityError, transaction
+# https://django.fun/docs/ru/3.0/topics/db/transactions/
+from django.contrib import messages
+# https://docs.djangoproject.com/en/3.0/ref/contrib/messages/
 
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render, HttpResponse, redirect
 
 from .models import modelTest, Vote, VotingAnswer, Voting
-from .forms import AddVotingForm
+from .forms import AddVotingForm, UserForm, ProfileForm
 
 
 def viewtest(request):
@@ -77,3 +82,25 @@ def bd_example(request):
     #    context['data'] = lst
 
     return render(request, 'bd_example.html', context)
+
+
+@login_required
+@transaction.atomic
+def update_profile(request):
+    if request.method == 'POST':
+        user_form = UserForm(request.POST, instance=request.user)
+        profile_form = ProfileForm(request.POST, instance=request.user.profile)
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            messages.success(request, u'Ваш профиль был успешно обновлен!')
+            return redirect('profile')
+        else:
+            messages.error(request, u'Пожалуйста, исправьте ошибки.')
+    else:
+        user_form = UserForm(instance=request.user)
+        profile_form = ProfileForm(instance=request.user.profile)
+    return render(request, 'profile.html', {
+        'user_form': user_form,
+        'profile_form': profile_form
+    })
