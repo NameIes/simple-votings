@@ -1,29 +1,54 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Госолование</title>
-    </head>
-    <body>
-        <h1>{{ voting.text }}</h1>
-        {% for answer in voting.answers %}
-            {{ answer.text }} - Проголосовал(о) {{ answer.votes_count }} человек
-            <form method="post" action="{{answer.action}}">
-                {% csrf_token %}
-                <input type="submit" value="Проголосовать">
-            </form>
-        {% endfor %}
-        <h4>Информация о голосовании:</h4>
-        <p>Создатель {{ voting.user.username }}</p>
-        <p>Создано в {{ voting.start_time }}</p>
-        {% if voting.end_time %}
-            <p>Заканчивается в {{ voting.end_time }}</p>
-        {% endif %}
+{% extends  'base.html' %}
+
+{% block main %}
+    <div class="card">
+        <h5 class="card-header">{{ voting.text }}</h5>
+        <div class="card-body">
+            <div class="card-body">
+			<ul>
+			    {% for answer in voting.answers %}
+				<li>{{ answer.text }} - Проголосовал(о) {{ answer.votes_count }} человек</li>
+				<form method="post" action="{{answer.action}}">
+				    {% csrf_token %}
+				    <input class="btn btn-primary" type="submit" value="Проголосовать">
+				</form>
+			    {% endfor %}
+
+			    <div class="progress">
+					<div class="progress-bar" role="progressbar" style="width: 10%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+			    </div>
+			</ul>
+		    </div>
+        </div>
+
+        <hr>
+        <style>
+           ul.hr {
+            margin: 0;
+            padding: 4px;
+           }
+           ul.hr li {
+            display: inline;
+            margin-right: 5px;
+            padding: 3px;
+           }
+           .like-toggle{
+        </style>
+
         <form method="post" action="{{ voting.like }}">
             {% csrf_token %}
             <input type="submit" value="{{ voting.likes_count }} Лайкнуть">
         </form>
+
+        <ul class="hr">
+            <li>Создатель {{ voting.user.username }}</li>
+            <li>Создано в {{ voting.start_time }}</li>
+            {% if voting.end_time %}
+            <li>Заканчивается в {{ voting.end_time }}</li>
+            {% endif %}
+        </ul>
         <hr>
+
         <h3>Добавить комментарий:</h3>
         <form method="post" action="/voting/{{voting.id}}">
             {% csrf_token %}
@@ -33,7 +58,7 @@
         <h3>Комментарии:</h3>
         {% if voting.comments %}
             {% for comment in voting.comments %}
-                <div style="background-color: #F0F8FF;">
+                <div style="background-color: #F0F8FF; margin: 1px;">
                     <h4>{{ comment.user.username }}:</h4>
                     <p>{{ comment.text }}</p>
                     <p>Создан в {{ comment.date }}</p>
@@ -42,5 +67,5 @@
         {% else %}
             <p>Комментариев нет</p>
         {% endif %}
-    </body>
-</html>
+    </div>
+{% endblock %}

@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render, redirect
 
 from .models import VotingAnswer, Voting, Vote, Like, Comment
 from .forms import AddVotingForm, AddCommentForm
@@ -34,7 +34,7 @@ def vote(request, answer):
         )
         vote_item.save()
 
-    return HttpResponse('Ваш голос учтён!')
+    return redirect('/voting/' + str(VotingAnswer.objects.get(id=answer).voting.id))
 
 
 @login_required
@@ -47,7 +47,7 @@ def like(request, voting_id):
         )
         like_item.save()
 
-    return HttpResponse('Ваш лайк учтён!')
+    return redirect('/voting/' + str(voting_id))
 
 
 @login_required
@@ -77,5 +77,6 @@ def create_voting(request):
 
 @login_required
 def index(request):
-    # TODO: Сделать стартовою страницу
-    return render(request, 'index.html')
+    context = {}
+    context['votings'] = Voting.objects.all()
+    return render(request, 'index.html', context)

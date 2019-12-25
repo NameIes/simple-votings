@@ -1,10 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Coming soon</title>
-    </head>
-    <body>
-        <h1>Coming soon</h1>
-    </body>
-</html>
+{% extends  'base.html' %}
+
+{% block main %}
+    <div class="card">
+        <h2 class="card-header">Список голосований</h2>
+        <div class="card-body">
+            {% if votings %}
+                {% for voting in votings %}
+                    <a href="/voting/{{ voting.id }}">{{ voting.text }}</a> <br>
+                {% endfor %}
+            {% else %}
+                <h3>Голосований нет.</h3>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

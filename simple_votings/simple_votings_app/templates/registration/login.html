@@ -1,15 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Авторизация</title>
-</head>
-<body>
+{% extends  'base.html' %}
+
+{% block main %}
+    <!--TODO: Доделать по bootstrap-->
     <h1>Авторизация</h1>
     <form action="/login/" method="POST">
-        {% csrf_token %}
-        {{form}}
-        <input type="submit" value="Войти">
+	{% csrf_token %}
+	{{form}}
+	<input type="submit" value="Войти">
     </form>
-</body>
-</html>
+{% endblock %}
