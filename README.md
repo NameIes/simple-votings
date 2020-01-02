@@ -6,6 +6,8 @@
         virtualenv -p python3 venv
         source venv/bin/activate
         pip3 install django
+        pip3 install Pillow
+        pip3 install django-crispy-forms
     
 2. Зайти в проект и накатить стандартные миграции
 

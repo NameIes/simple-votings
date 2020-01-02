@@ -1,3 +1,6 @@
+from django.conf import settings
+from django.conf.urls.static import static
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import path
 from .views import *
 from django.contrib.auth import views as au_views
@@ -11,5 +14,10 @@ urlpatterns = [
     path('login/', au_views.LoginView.as_view()),
     path('logout/', au_views.LogoutView.as_view()),
     path('register/', RegisterFormView.as_view()),
-    path('accounts/profile/', update_profile, name='profile'),
+    path('profile/<int:user_id>', profile),
+    path('profile/<int:user_id>/edit/', edit_profile),
 ]
+
+
+if settings.DEBUG:
+    urlpatterns += staticfiles_urlpatterns() + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

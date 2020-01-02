@@ -21,13 +21,19 @@ class AddCommentForm(forms.Form):
                               }))
 
 
-class UserForm(forms.ModelForm):
+class ProfileUpdateForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(ProfileUpdateForm, self).__init__(*args, **kwargs)
+
+        for key in self.fields:
+            self.fields[key].required = False
+
+    class Meta:
+        model = Profile
+        fields = ('job', 'biography', 'gender', 'country', 'birth')
+
+
+class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ('first_name', 'last_name', 'email')
-
-
-class ProfileForm(forms.ModelForm):
-    class Meta:
-        model = Profile
-        fields = ('bio',)

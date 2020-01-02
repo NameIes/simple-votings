@@ -1,7 +1,8 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 
-from .models import VotingAnswer, Voting, Vote, Like, Comment
+from .models import VotingAnswer, Voting, Vote, Like, Comment, Profile
 from .forms import AddVotingForm, AddCommentForm
 # -*- coding: utf-8 -*-
 
@@ -14,10 +15,13 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, HttpResponse, redirect
 
 from .models import Vote, VotingAnswer, Voting
-from .forms import AddVotingForm, UserForm, ProfileForm
+from .forms import AddVotingForm, UserUpdateForm, ProfileUpdateForm
 
 from django.views.generic.edit import FormView
 from django.contrib.auth.forms import UserCreationForm
+
+from PIL import Image
+from django.core.files.storage import FileSystemStorage
 
 
 @login_required
@@ -97,27 +101,70 @@ def index(request):
     return render(request, 'index.html', context)
 
 
+def profile(request, user_id):
+    context = {}
+    context['ufp'] = User.objects.get(id=user_id)
+    context['profile'] = Profile.objects.get(user=user_id)
+
+    return render(request, 'profile.html', context)
+
+
 @login_required
 @transaction.atomic
-def update_profile(request):
+def edit_profile(request, user_id):
+    context = {}
+    context['ufp'] = User.objects.get(id=user_id)
+    context['profile'] = Profile.objects.get(user=user_id)
+    context['errors'] = []
     if request.method == 'POST':
-        user_form = UserForm(request.POST, instance=request.user)
-        profile_form = ProfileForm(request.POST, instance=request.user.profile)
+        user_form = UserUpdateForm(request.POST, instance=User.objects.get(id=user_id))
+        p = Profile.objects.get(user=user_id)
+        try:
+            image = request.FILES['avatar']
+            if image.size <= 5000000:
+                if image.content_type.split('/')[0] == 'image':
+                    # Get file extension
+                    i = -1
+                    while image.name[i] != '.':
+                        i -= 1
+                    path = 'avatars/' + str(user_id) + image.name[i:]
+
+                    # Init
+                    fs = FileSystemStorage()
+
+                    # Remove old avatar
+                    if p.avatar.name != 'avatars/0.png':
+                        fs.delete(p.avatar.path)
+
+                    # Save avatar
+                    fs.save(path, image)
+                    p.avatar = path
+                    p.save()
+
+                    # Resize
+                    image = Image.open(p.avatar)
+                    size = (200, 200)
+                    image = image.resize(size, Image.ANTIALIAS)
+                    image.save(p.avatar.path)
+                else:
+                    pass
+            else:
+                pass
+        except Exception:
+            pass
+        p.show_email = False if request.POST.get('show_email') is None else True
+        p.save()
+        profile_form = ProfileUpdateForm(request.POST, instance=Profile.objects.get(user=user_id))
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
-            messages.success(request, u'Ваш профиль был успешно обновлен!')
-            return redirect('profile')
-        else:
-            messages.error(request, u'Пожалуйста, исправьте ошибки.')
+            return redirect('/profile/' + str(user_id))
     else:
-        user_form = UserForm(instance=request.user)
-        profile_form = ProfileForm(instance=request.user.profile)
-    return render(request, 'profile.html', {
-        'user_form': user_form,
-        'profile_form': profile_form,
-        'title': 'Аккаунт пользователя'
-    })
+        user_form = UserUpdateForm(instance=User.objects.get(id=user_id))
+        profile_form = ProfileUpdateForm(instance=Profile.objects.get(user=user_id))
+    context['user_form'] = user_form
+    context['profile_form'] = profile_form
+    return render(request, 'edit.html', context)
 
 
 # https://ustimov.org/posts/17/
@@ -133,6 +180,8 @@ class RegisterFormView(FormView):
     def form_valid(self, form):
         # Создаём пользователя, если данные в форму были введены корректно.
         form.save()
+        for key in form.fields:
+            print(form.fields[key])
 
         # Вызываем метод базового класса
         return super(RegisterFormView, self).form_valid(form)

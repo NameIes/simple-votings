@@ -2,7 +2,6 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.contrib import admin
-from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -96,14 +95,71 @@ class VotingAnswerAdmin(admin.ModelAdmin):
 
 
 class Profile(models.Model):
-    """Profile
-    Base User Model
+    GENDER_CHOICES = (
+        ('M', 'Мужчина'),
+        ('F', 'Женщина'),
+        (None, 'Не указано')
+    )
 
-    """
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    bio = models.TextField(max_length=500, blank=True)
-    creation_time = models.DateTimeField(auto_now_add=True)
-    # TODO: Аватар, История(созданные голосования, лайки, голоса, жалобы)
+    user = models.OneToOneField(to=User, on_delete=models.CASCADE)
+
+    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True, default='avatars/0.png')
+
+    job = models.CharField(null=True, max_length=100)
+    biography = models.CharField(max_length=500, null=True)
+
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True)
+    country = models.CharField(null=True, max_length=60)
+    birth = models.DateField(null=True)
+    show_email = models.BooleanField(default=False)
+
+    def good_date(self, date):
+        return '{}.{}.{} {}:{}'.format(date.day, date.month, date.year, date.hour, date.minute)
+
+    def good_joined_date(self):
+        return self.good_date(self.user.date_joined)
+
+    def good_login_date(self):
+        return self.good_date(self.user.last_login)
+
+    def votings(self):
+        return Voting.objects.filter(user=self.user)
+
+    def votings_count(self):
+        return len(self.votings())
+
+    def likes_on_votings(self):
+        count = 0
+        for i in self.votings():
+            count += i.likes_count()
+        return count
+
+    def votes_on_votings(self):
+        count = 0
+        for voting in self.votings():
+            for answer in voting.answers():
+                count += answer.votes_count()
+        return count
+
+    def comments(self):
+        return Comment.objects.filter(user=self.user)
+
+    def comments_count(self):
+        return len(self.comments())
+
+    def votes(self):
+        return Vote.objects.filter(user=self.user)
+
+    def votes_count(self):
+        return len(self.votes())
+
+    def likes(self):
+        return Like.objects.filter(user=self.user)
+
+    def likes_count(self):
+        return len(self.likes())
+
+    # TODO: жалобы
 
 
 @receiver(post_save, sender=User)
