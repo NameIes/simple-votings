@@ -3,9 +3,29 @@
 {% block main %}
     <h1>Регистрация</h1>
     <form action="" method="post">
-	{% csrf_token %}
-	<!-- as_p для того, чтобы каждый элемент формы был с новой строки -->
-	{{ form.as_p }}
-	<button type="submit">Зарегистрироваться</button>
+        {% csrf_token %}
+        <!-- as_p для того, чтобы каждый элемент формы был с новой строки -->
+        {{ form.as_p }}
+        <button type="submit">Зарегистрироваться</button>
     </form>
 {% endblock %}
+
+{# TODO: Почитай про django crispy forms #}
+{#{% extends  'base.html' %}#}
+{#{% load crispy_forms_tags %}#}
+{##}
+{#{% block main %}#}
+{#    <div class="card text-center mt-3 w-50 mx-auto">#}
+{#        <div class="card-header text-center">#}
+{#            <a href="/login/">Авторизация</a> | Регистрация#}
+{#        </div>#}
+{#        <div class="card-body">#}
+{#            <form action="" method="post" novalidate>#}
+{#                {% csrf_token %}#}
+{#                <!-- as_p для того, чтобы каждый элемент формы был с новой строки -->#}
+{#                {{ form|crispy }}#}
+{#                <button class="btn btn-primary" type="submit">Зарегистрироваться</button>#}
+{#            </form>#}
+{#        </div>#}
+{#    </div>#}
+{#{% endblock %}#}

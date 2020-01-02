@@ -3,23 +3,21 @@
 {% load crispy_forms_tags %}
 
 {% block main %}
-    <div class="container">
-        <div class="card text-center mt-3 w-50 mx-auto">
-            <div class="card-header text-center">
-                Авторизация | <a href="/register/">Регистрация</a>
-            </div>
-            <div class="card-body">
-                <form method="post" action="/login/" novalidate>
-                    <style>
-                        .asteriskField {
-                            display: none;
-                        }
-                    </style>
-                    {% csrf_token %}
-                    {{ form|crispy }}
-                    <input type="submit" class="btn btn-primary mt-4" value="Войти">
-                </form>
-            </div>
+    <div class="card text-center mt-3 w-50 mx-auto">
+        <div class="card-header text-center">
+            Авторизация | <a href="/register/">Регистрация</a>
+        </div>
+        <div class="card-body">
+            <form method="post" action="/login/" novalidate>
+                <style>
+                    .asteriskField {
+                        display: none;
+                    }
+                </style>
+                {% csrf_token %}
+                {{ form|crispy }}
+                <input type="submit" class="btn btn-primary mt-4" value="Войти">
+            </form>
         </div>
     </div>
 {% endblock %}
