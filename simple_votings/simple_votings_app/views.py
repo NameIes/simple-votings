@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from .models import VotingAnswer, Voting, Vote, Like, Comment
 from .forms import AddVotingForm, AddCommentForm
 # -*- coding: utf-8 -*-
-import datetime
+
 from django.db import IntegrityError, transaction
 # https://django.fun/docs/ru/3.0/topics/db/transactions/
 from django.contrib import messages
@@ -15,6 +15,9 @@ from django.shortcuts import render, HttpResponse, redirect
 
 from .models import Vote, VotingAnswer, Voting
 from .forms import AddVotingForm, UserForm, ProfileForm
+
+from django.views.generic.edit import FormView
+from django.contrib.auth.forms import UserCreationForm
 
 
 @login_required
@@ -115,3 +118,21 @@ def update_profile(request):
         'profile_form': profile_form,
         'title': 'Аккаунт пользователя'
     })
+
+
+# https://ustimov.org/posts/17/
+class RegisterFormView(FormView):
+    form_class = UserCreationForm
+    # Ссылка, на которую будет перенаправляться user
+    # в случае успешной регистрации
+    success_url = "/login/"
+
+    # Шаблон, который будет использоваться при отображении представления.
+    template_name = "register.html"
+
+    def form_valid(self, form):
+        # Создаём пользователя, если данные в форму были введены корректно.
+        form.save()
+
+        # Вызываем метод базового класса
+        return super(RegisterFormView, self).form_valid(form)
