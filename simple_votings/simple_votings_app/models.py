@@ -9,7 +9,8 @@ from django.dispatch import receiver
 class Voting(models.Model):
     text = models.CharField(max_length=500)
     start_time = models.DateTimeField(auto_now=True)
-    end_time = models.DateTimeField(null=True, default=None)
+    end_time = models.DateField(null=True, default=None)
+    is_multiple = models.BooleanField(default=False)
 
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
 
@@ -33,6 +34,15 @@ class Voting(models.Model):
 
     def comments(self):
         return Comment.objects.filter(voting=self)
+
+    def type(self):
+        if self.is_multiple and self.end_time:
+            return 'Множественный выбор с окончанием'
+        if self.is_multiple:
+            return 'Множественный выбор'
+        if self.end_time:
+            return 'Обыкновенное с окончанием'
+        return 'Обыкновенное'
 
 
 class Like(models.Model):

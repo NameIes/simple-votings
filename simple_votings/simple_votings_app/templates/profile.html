@@ -152,11 +152,10 @@
                                             <a href="/voting/{{ voting.id }}"
                                                class="list-group-item list-group-item-action">
                                                 <div class="d-flex w-100 justify-content-between">
-                                                    <h5 class="mb-1">Тип голосования - обыкновенный</h5>
+                                                    <h5 class="mb-1">Тип голосования - {{ voting.type }}</h5>
                                                     <small>{{ voting.likes_count }} лайков</small>
                                                 </div>
                                                 <h5 class="mb-1">{{ voting.text }}</h5>
-                                                <!-- # TODO: Вносить типы голосований -->
                                                 <small>Создано {{ voting.start_time }}</small>
                                                 {% if voting.end_time %}
                                                     <small class="ml-3">Заканчивается {{ voting.end_time }}</small>

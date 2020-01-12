@@ -1,68 +1,76 @@
 {% extends  'base.html' %}
 
 {% block main %}
-    <div class="card">
-        <h5 class="card-header">{{ voting.text }}</h5>
+    <div class="card mt-3">
         <div class="card-body">
             <div class="card-body">
-			<ul>
-			    {% for answer in voting.answers %}
-				<li>{{ answer.text }} - Проголосовал(о) {{ answer.votes_count }} человек</li>
-				<form method="post" action="{{answer.action}}">
-				    {% csrf_token %}
-				    <input class="btn btn-primary" type="submit" value="Проголосовать">
-				</form>
-			    {% endfor %}
-
-			    <div class="progress">
-					<div class="progress-bar" role="progressbar" style="width: 10%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
-			    </div>
-			</ul>
-		    </div>
-        </div>
-
-        <div class="card-footer">
-			<div class="d-flex justify-content-between">
-			    <div>
-                    <style>
-                        .text-muted {
-                            margin-right: 10px;
-                        }
-                    </style>
-
-                    <span class="text-muted">Создатель {{ voting.user.username }}</span>
-                    <span class="text-muted">Дата создания: {{ voting.start_time }}</span>
-                    {% if voting.end_time %}
-                        <span class="text-muted">Заканчивается в {{ voting.end_time }}</span>
-                    {% endif %}
-			    </div>
-			    <div>
-                    <form method="post" action="{{ voting.like }}" class="hr" style="float: left; margin: 0px;">
+                <h4 class="text-left">{{ voting.text }}</h4>
+                {% for answer in voting.answers %}
+                    <hr>
+                    <form method="post" action="{{ answer.action }}">
                         {% csrf_token %}
-                        <input type="submit" value="♥ {{ voting.likes_count }}" class="btn btn-primary" style="padding: 1px 10px; background-color: #E52B50; border-color: #E52B50;">
+                        <input type="submit" value="{{ answer.text }} - Проголосовало {{ answer.votes_count }}"
+                               class="btn btn-outline-primary btn-block text-left"
+                        {% if not voting.is_multiple %}
+                            {% if voted_answers %}
+                                disabled
+                            {% endif %}
+                        {% else %}
+                            {% if answer in voted_answers %}
+                                disabled
+                            {% endif %}
+                        {% endif %}>
                     </form>
-			    </div>
-			</div>
-		    </div>
-        <hr style="margin: 0px;">
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 
-        <h3>Добавить комментарий:</h3>
-        <form method="post" action="/voting/{{voting.id}}">
-            {% csrf_token %}
-            {{ form.comment }}
-            <input class="btn btn-primary" type="submit" value="Оставить комментарий">
-        </form>
-        <h3>Комментарии:</h3>
-        {% if voting.comments %}
-            {% for comment in voting.comments %}
-                <div style="background-color: #F0F8FF; margin: 1px;">
-                    <h4>{{ comment.user.username }}:</h4>
-                    <p>{{ comment.text }}</p>
-                    <p>Создан в {{ comment.date }}</p>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p>Комментариев нет</p>
-        {% endif %}
+    <div class="card-footer">
+        <div class="d-flex justify-content-between">
+            <div>
+                <style>
+                    .text-muted {
+                        margin-right: 10px;
+                    }
+                </style>
+
+                <span class="text-muted">
+                    Создатель <a href="/profile/{{ voting.user.id }}">{{ voting.user.username }}</a>
+                </span>
+                <span class="text-muted">Создан {{ voting.start_time }}</span>
+                {% if voting.end_time %}
+                    <span class="text-muted">Заканчивается {{ voting.end_time }}</span>
+                {% endif %}
+            </div>
+            <div>
+                <form method="post" action="{{ voting.like }}" class="hr" style="float: left; margin: 0px;">
+                    {% csrf_token %}
+                    <input type="submit" value="♥ {{ voting.likes_count }}" class="btn btn-outline-danger"
+                           style="padding: 1px 10px;">
+                </form>
+            </div>
+        </div>
+    </div>
+    <hr style="margin: 0px;">
+
+    <h3>Добавить комментарий:</h3>
+    <form method="post" action="/voting/{{ voting.id }}">
+        {% csrf_token %}
+        {{ form.comment }}
+        <input class="btn btn-primary" type="submit" value="Оставить комментарий">
+    </form>
+    <h3>Комментарии:</h3>
+    {% if voting.comments %}
+        {% for comment in voting.comments %}
+            <div style="background-color: #F0F8FF; margin: 1px;">
+                <h4>{{ comment.user.username }}:</h4>
+                <p>{{ comment.text }}</p>
+                <p>Создан в {{ comment.date }}</p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Комментариев нет</p>
+    {% endif %}
     </div>
 {% endblock %}

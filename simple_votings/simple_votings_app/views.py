@@ -1,21 +1,17 @@
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.shortcuts import render, redirect
 
-from .models import VotingAnswer, Voting, Vote, Like, Comment, Profile
-from .forms import AddVotingForm, AddCommentForm
+from .models import Like, Comment, Profile
+from .forms import AddCommentForm
 # -*- coding: utf-8 -*-
 
-from django.db import IntegrityError, transaction
+from django.db import transaction
 # https://django.fun/docs/ru/3.0/topics/db/transactions/
-from django.contrib import messages
-# https://docs.djangoproject.com/en/3.0/ref/contrib/messages/
 
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, HttpResponse, redirect
+from django.shortcuts import render, redirect
 
 from .models import Vote, VotingAnswer, Voting
-from .forms import AddVotingForm, UserUpdateForm, ProfileUpdateForm
+from .forms import UserUpdateForm, ProfileUpdateForm
 
 from django.views.generic.edit import FormView
 from django.contrib.auth.forms import UserCreationForm
@@ -29,6 +25,12 @@ def voting(request, voting_id):
     context = {}
     context['voting'] = Voting.objects.get(id=voting_id)
     context['form'] = AddCommentForm()
+    context['voted_answers'] = []
+
+    for i in context['voting'].answers():
+        for j in i.votes():
+            if j.user == request.user:
+                context['voted_answers'].append(i)
 
     if request.method == 'POST':
         form = AddCommentForm(request.POST)
@@ -47,11 +49,12 @@ def voting(request, voting_id):
 def vote(request, answer):
     if request.method == 'POST':
         answer_item = VotingAnswer.objects.get(id=answer)
-        vote_item = Vote(
-            answer=answer_item,
-            user=request.user
-        )
-        vote_item.save()
+        if request.user not in [i.user for i in answer_item.votes()]:
+            vote_item = Vote(
+                answer=answer_item,
+                user=request.user
+            )
+            vote_item.save()
 
     return redirect('/voting/' + str(VotingAnswer.objects.get(id=answer).voting.id))
 
@@ -71,26 +74,40 @@ def like(request, voting_id):
 
 @login_required
 def create_voting(request):
-    context = {}
-    context['form'] = AddVotingForm()
+    context = {'errors': []}
 
     if request.method == 'POST':
-        form = AddVotingForm(request.POST)
-        if form.is_valid():
-            voting_item = Voting(
-                text=form.data['question'],
-                user=request.user
-            )
-            voting_item.save()
+        try:
+            question = request.POST['question'].strip()
+            if not question:
+                context['errors'].append('Поле опроса пустое')
+            answers = request.POST.getlist('answer')
+            if len(answers) < 2 or len(answers) > 25:
+                context['errors'].append('Неверное кол-во ответов')
+            for i in answers:
+                if not i.strip():
+                    context['errors'].append('Не все поля ответов заполнены')
+                    break
 
-            count = int(request.POST.get('answers_count'))
-            for i in range(count):
-                answer_item = VotingAnswer(
-                    text=request.POST.get('answer' + str(i)),
-                    voting=voting_item
+            if len(context['errors']) == 0:
+                voting_item = Voting(
+                    text=question,
+                    user=request.user
                 )
-                answer_item.save()
+                if request.POST.get('end_time'):
+                    voting_item.end_time = request.POST.get('end_time')
+                if request.POST.get('is_multiple', None) is not None:
+                    voting_item.is_multiple = True
+                voting_item.save()
 
+                for answer in answers:
+                    answer_item = VotingAnswer(
+                        text=answer,
+                        voting=voting_item
+                    )
+                    answer_item.save()
+        except KeyError:
+            context['errors'].append('Что-то не так, перезагрузите страницу')
     return render(request, 'createvoting.html', context)
 
 
@@ -164,7 +181,7 @@ def edit_profile(request, user_id):
         profile_form = ProfileUpdateForm(instance=Profile.objects.get(user=user_id))
     context['user_form'] = user_form
     context['profile_form'] = profile_form
-    return render(request, 'edit.html', context)
+    return render(request, 'profile_edit.html', context)
 
 
 # https://ustimov.org/posts/17/

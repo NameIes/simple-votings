@@ -2,16 +2,6 @@ from django import forms
 from .models import User, Profile
 
 
-class AddVotingForm(forms.Form):
-    question = forms.CharField(max_length=500,
-                               required=True,
-                               widget=forms.TextInput(attrs={
-                                   'placeholder': 'Ваш опрос',
-                                   'style': 'width: 500px;'
-                                            'font-size: 18pt;'
-                               }))
-
-
 class AddCommentForm(forms.Form):
     comment = forms.CharField(max_length=500,
                               required=True,
