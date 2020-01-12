@@ -72,43 +72,114 @@ def like(request, voting_id):
     return redirect('/voting/' + str(voting_id))
 
 
+def get_voting_errors(request):
+    errors = []
+    try:
+        if not request.POST['question'].strip():
+            errors.append('Поле опроса пустое')
+        answers = request.POST.getlist('answer')
+        if len(answers) < 2 or len(answers) > 25:
+            errors.append('Неверное кол-во ответов')
+        for i in answers:
+            if not i.strip():
+                errors.append('Не все поля ответов заполнены')
+                break
+    except KeyError:
+        errors.append('Что-то не так, перезагрузите страницу')
+
+    return errors
+
+
 @login_required
 def create_voting(request):
-    context = {'errors': []}
+    context = {}
 
     if request.method == 'POST':
-        try:
-            question = request.POST['question'].strip()
-            if not question:
-                context['errors'].append('Поле опроса пустое')
-            answers = request.POST.getlist('answer')
-            if len(answers) < 2 or len(answers) > 25:
-                context['errors'].append('Неверное кол-во ответов')
-            for i in answers:
-                if not i.strip():
-                    context['errors'].append('Не все поля ответов заполнены')
-                    break
+        context['errors'] = get_voting_errors(request)
 
-            if len(context['errors']) == 0:
-                voting_item = Voting(
-                    text=question,
-                    user=request.user
+        if len(context['errors']) == 0:
+            voting_item = Voting(
+                text=request.POST['question'].strip(),
+                user=request.user
+            )
+            if request.POST.get('end_time'):
+                voting_item.end_time = request.POST.get('end_time')
+            if request.POST.get('is_multiple', None) is not None:
+                voting_item.is_multiple = True
+            voting_item.save()
+
+            for answer in request.POST.getlist('answer'):
+                answer_item = VotingAnswer(
+                    text=answer,
+                    voting=voting_item
                 )
-                if request.POST.get('end_time'):
-                    voting_item.end_time = request.POST.get('end_time')
-                if request.POST.get('is_multiple', None) is not None:
-                    voting_item.is_multiple = True
-                voting_item.save()
+                answer_item.save()
 
-                for answer in answers:
-                    answer_item = VotingAnswer(
-                        text=answer,
-                        voting=voting_item
-                    )
-                    answer_item.save()
-        except KeyError:
-            context['errors'].append('Что-то не так, перезагрузите страницу')
     return render(request, 'createvoting.html', context)
+
+
+@login_required
+def voting_edit(request, voting_id):
+    context = {}
+    context['voting'] = Voting.objects.get(id=voting_id)
+
+    if request.method == 'POST':
+        context['errors'] = get_voting_errors(request)
+
+        if len(context['errors']) == 0:
+            voting_item = Voting.objects.get(id=voting_id)
+            question = request.POST['question']
+            answers = request.POST.getlist('answer')
+            end_time = request.POST['end_time']
+            is_multiple = request.POST.get('is_multiple', None)
+
+            if voting_item.text != question:
+                voting_item.text = question
+                for answer in voting_item.answers():
+                    for vote in answer.votes():
+                        vote.delete()
+                for like_item in voting_item.likes():
+                    like_item.delete()
+
+            if not end_time:
+                voting_item.end_time = None
+            else:
+                voting_item.end_time = end_time
+
+            if is_multiple is None:
+                voting_item.is_multiple = False
+            else:
+                voting_item.is_multiple = True
+            voting_item.save()
+
+            for answer_item in voting_item.answers():
+                if answer_item.text not in answers:
+                    answer_item.delete()
+
+            for answer_item in voting_item.answers():
+                if answer_item.text in answers:
+                    answers.remove(answer_item.text)
+
+            for answer_text in answers:
+                answer_item = VotingAnswer(
+                    text=answer_text,
+                    voting=voting_item
+                )
+                answer_item.save()
+
+            return redirect('/voting/' + str(voting_id))
+
+    return render(request, 'voting_edit.html', context)
+
+
+@login_required
+def delete_voting(request, voting_id):
+    if request.method == 'POST':
+        voting = Voting.objects.get(id=voting_id)
+        if request.user == voting.user:
+            voting.delete()
+
+    return redirect('/')
 
 
 @login_required

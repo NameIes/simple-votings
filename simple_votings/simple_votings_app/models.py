@@ -44,6 +44,9 @@ class Voting(models.Model):
             return 'Обыкновенное с окончанием'
         return 'Обыкновенное'
 
+    def get_end_time(self):
+        return '{}-{:02}-{:02}'.format(self.end_time.year, self.end_time.month, self.end_time.day)
+
 
 class Like(models.Model):
     date = models.DateTimeField(auto_now=True)

@@ -16,6 +16,8 @@ urlpatterns = [
     path('register/', RegisterFormView.as_view()),
     path('profile/<int:user_id>', profile),
     path('profile/<int:user_id>/edit/', edit_profile),
+    path('voting/<int:voting_id>/edit/', voting_edit),
+    path('delete/<int:voting_id>', delete_voting)
 ]
 
 

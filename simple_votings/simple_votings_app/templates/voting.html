@@ -4,22 +4,31 @@
     <div class="card mt-3">
         <div class="card-body">
             <div class="card-body">
-                <h4 class="text-left">{{ voting.text }}</h4>
+                <div class="row">
+                    <div class="col">
+                        <h4 class="text-left">{{ voting.text }}</h4>
+                    </div>
+                    <div class="col text-right">
+                        {% if voting.user == user %}
+                            <a href="/voting/{{ voting.id }}/edit" class="btn btn-sm btn-primary">Редактировать</a>
+                        {% endif %}
+                    </div>
+                </div>
                 {% for answer in voting.answers %}
                     <hr>
                     <form method="post" action="{{ answer.action }}">
                         {% csrf_token %}
                         <input type="submit" value="{{ answer.text }} - Проголосовало {{ answer.votes_count }}"
                                class="btn btn-outline-primary btn-block text-left"
-                        {% if not voting.is_multiple %}
-                            {% if voted_answers %}
-                                disabled
-                            {% endif %}
-                        {% else %}
-                            {% if answer in voted_answers %}
-                                disabled
-                            {% endif %}
-                        {% endif %}>
+                                {% if not voting.is_multiple %}
+                                    {% if voted_answers %}
+                               disabled
+                                    {% endif %}
+                                {% else %}
+                                    {% if answer in voted_answers %}
+                               disabled
+                                    {% endif %}
+                                {% endif %}>
                     </form>
                 {% endfor %}
             </div>
