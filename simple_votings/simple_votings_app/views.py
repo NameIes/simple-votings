@@ -63,11 +63,12 @@ def vote(request, answer):
 def like(request, voting_id):
     if request.method == 'POST':
         voting_item = Voting.objects.get(id=voting_id)
-        like_item = Like(
-            voting=voting_item,
-            user=request.user
-        )
-        like_item.save()
+        if request.user not in [i.user for i in voting_item.likes()]:
+            like_item = Like(
+                voting=voting_item,
+                user=request.user
+            )
+            like_item.save()
 
     return redirect('/voting/' + str(voting_id))
 
