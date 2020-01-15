@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 
-from .models import Like, Comment, Profile
+from .models import Like, Comment, Profile, Report
 from .forms import AddCommentForm
 # -*- coding: utf-8 -*-
 
@@ -8,7 +8,7 @@ from django.db import transaction
 # https://django.fun/docs/ru/3.0/topics/db/transactions/
 
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, HttpResponse
 
 from .models import Vote, VotingAnswer, Voting
 from .forms import UserUpdateForm, ProfileUpdateForm
@@ -178,7 +178,7 @@ def voting_edit(request, voting_id):
 def delete_voting(request, voting_id):
     if request.method == 'POST':
         voting = Voting.objects.get(id=voting_id)
-        if request.user == voting.user:
+        if request.user == voting.user or request.user.is_superuser:
             voting.delete()
 
     return redirect('/')
@@ -275,3 +275,45 @@ class RegisterFormView(FormView):
 
         # Вызываем метод базового класса
         return super(RegisterFormView, self).form_valid(form)
+
+
+@login_required
+def send_report(request, voting_id):
+    context = {}
+    context['errors'] = []
+
+    if request.method == 'POST':
+        if request.POST.get('message', None) is None:
+            context['errors'].append('Что-то пошло не так, перезагрузите страницу.')
+        else:
+            if not request.POST['message']:
+                context['errors'].append('Заполните все поля.')
+
+        if len(context['errors']) == 0:
+            report_item = Report(
+                user=request.user,
+                voting=Voting.objects.get(id=voting_id),
+                message=request.POST['message']
+            )
+            report_item.save()
+
+            context['thanks'] = 'Спасибо за поддержку! Ваша жалоба будет рассмотрена.'
+
+    return render(request, 'send_report.html', context)
+
+
+@login_required
+def reports(request):
+    context = {}
+    context['reports'] = Report.objects.all()
+
+    return render(request, 'reports.html', context)
+
+
+@login_required
+def delete_report(request, report_id):
+    if request.method == 'POST' and request.user.is_superuser:
+        Report.objects.get(id=report_id).delete()
+        return redirect('/reports/')
+
+    return HttpResponse('Ошибка.')

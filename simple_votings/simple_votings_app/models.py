@@ -88,17 +88,6 @@ class Comment(models.Model):
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
 
 
-class Example(models.Model):
-    number = models.IntegerField(default=1)
-    date = models.DateTimeField()
-    text = models.CharField(max_length=200)
-    galochka = models.BooleanField(blank=False)
-
-
-class ExampleAdmin(admin.ModelAdmin):
-    list_display = ('number', 'date', 'text', 'galochka')
-
-
 class VotingAdmin(admin.ModelAdmin):
     list_display = ('text', 'user', 'start_time', 'end_time')
 
@@ -172,7 +161,12 @@ class Profile(models.Model):
     def likes_count(self):
         return len(self.likes())
 
-    # TODO: жалобы
+
+class Report(models.Model):
+    voting = models.ForeignKey(to=Voting, on_delete=models.CASCADE)
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+
+    message = models.CharField(max_length=500)
 
 
 @receiver(post_save, sender=User)
@@ -186,6 +180,5 @@ def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
 
 
-admin.site.register(Example, ExampleAdmin)
 admin.site.register(Voting, VotingAdmin)
 admin.site.register(VotingAnswer, VotingAnswerAdmin)
