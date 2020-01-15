@@ -115,6 +115,7 @@ def create_voting(request):
                     voting=voting_item
                 )
                 answer_item.save()
+        return redirect('/voting/' + str(voting_item.id))
 
     return render(request, 'createvoting.html', context)
 
