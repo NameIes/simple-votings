@@ -27,6 +27,17 @@ def voting(request, voting_id):
     context['form'] = AddCommentForm()
     context['voted_answers'] = []
 
+    try:
+        userlike = Like.objects.get(user=request.user, voting_id=context['voting'])
+    except:
+        userlike = None
+
+    if userlike:
+        context['liked_by_user'] = True
+    else:
+        context['liked_by_user'] = False
+
+
     for i in context['voting'].answers():
         for j in i.votes():
             if j.user == request.user:
@@ -69,6 +80,13 @@ def like(request, voting_id):
                 user=request.user
             )
             like_item.save()
+        else:
+            like_item = Like.objects.get(
+                voting=voting_item,
+                user=request.user
+            )
+            like_item.delete()
+
 
     return redirect('/voting/' + str(voting_id))
 
