@@ -344,3 +344,4 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.gitignore.io/api/venv,linux,macos,python,django,pycharm,windows
+/simple_votings/simple_votings_app/migrations/0001_initial.py
