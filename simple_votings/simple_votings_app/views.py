@@ -31,6 +31,8 @@ def voting(request, voting_id):
         for j in i.votes():
             if j.user == request.user:
                 context['voted_answers'].append(i)
+            if j.user_ip == get_client_ip(request):
+                context['voted_answers'].append(i)
 
     if request.method == 'POST':
         form = AddCommentForm(request.POST)
@@ -45,6 +47,15 @@ def voting(request, voting_id):
     return render(request, 'voting.html', context)
 
 
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+
 @login_required
 def vote_registered(request, answer):
     answer_item = VotingAnswer.objects.get(id=answer)
@@ -56,21 +67,23 @@ def vote_registered(request, answer):
         vote_item.save()
 
 
-def vote_anonymous(request, answer):
+def vote_anonymous(request, answer, ip):
     if not request.user.is_authenticated:
         answer_item = VotingAnswer.objects.get(id=answer)
-        vote_item = Vote(answer=answer_item)
-        vote_item.save()
+        if ip not in [i.user_ip for i in answer_item.votes()]:
+            vote_item = Vote(answer=answer_item, user_ip=ip)
+            vote_item.save()
     else:
         vote_registered(request, answer)
 
 
 def vote(request, answer):
     if request.method == 'POST':
+        ip = get_client_ip(request)
         if not VotingAnswer.objects.get(id=answer).voting.is_anonymous_allowed:
             vote_registered(request, answer)
         else:
-            vote_anonymous(request, answer)
+            vote_anonymous(request, answer, ip)
     return redirect('/voting/' + str(VotingAnswer.objects.get(id=answer).voting.id))
 
 
@@ -137,6 +150,7 @@ def create_voting(request):
     return render(request, 'createvoting.html', context)
 
 
+# TODO: edit anonymous voting option
 @login_required
 def voting_edit(request, voting_id):
     context = {}
