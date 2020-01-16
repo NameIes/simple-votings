@@ -20,7 +20,7 @@ from PIL import Image
 from django.core.files.storage import FileSystemStorage
 
 
-@login_required
+#@login_required
 def voting(request, voting_id):
     context = {}
     context['voting'] = Voting.objects.get(id=voting_id)
@@ -34,7 +34,7 @@ def voting(request, voting_id):
 
     if request.method == 'POST':
         form = AddCommentForm(request.POST)
-        if form.is_valid():
+        if form.is_valid() and not Voting.objects.get(id=voting_id).is_anonymous_allowed:
             comment_item = Comment(
                 text=form.data['comment'],
                 voting=Voting.objects.get(id=voting_id),
@@ -46,17 +46,34 @@ def voting(request, voting_id):
 
 
 @login_required
+def vote_registered(request, answer):
+    answer_item = VotingAnswer.objects.get(id=answer)
+    if request.user not in [i.user for i in answer_item.votes()]:
+        vote_item = Vote(
+            answer=answer_item,
+            user=request.user
+        )
+        vote_item.save()
+
+
+def vote_anonymous(request, answer):
+    if not request.user.is_authenticated:
+        answer_item = VotingAnswer.objects.get(id=answer)
+        vote_item = Vote(answer=answer_item)
+        vote_item.save()
+    else:
+        vote_registered(request, answer)
+
+
 def vote(request, answer):
     if request.method == 'POST':
-        answer_item = VotingAnswer.objects.get(id=answer)
-        if request.user not in [i.user for i in answer_item.votes()]:
-            vote_item = Vote(
-                answer=answer_item,
-                user=request.user
-            )
-            vote_item.save()
+        if not VotingAnswer.objects.get(id=answer).voting.is_anonymous_allowed:
+            vote_registered(request, answer)
+            return redirect('/voting/' + str(VotingAnswer.objects.get(id=answer).voting.id))
+        else:
+            vote_anonymous(request, answer)
+            return redirect('/voting/' + str(VotingAnswer.objects.get(id=answer).voting.id))
 
-    return redirect('/voting/' + str(VotingAnswer.objects.get(id=answer).voting.id))
 
 
 @login_required
@@ -107,6 +124,8 @@ def create_voting(request):
                 voting_item.end_time = request.POST.get('end_time')
             if request.POST.get('is_multiple', None) is not None:
                 voting_item.is_multiple = True
+            if request.POST.get('is_anonymous_allowed', None) is not None:
+                voting_item.is_anonymous_allowed = True
             voting_item.save()
 
             for answer in request.POST.getlist('answer'):
