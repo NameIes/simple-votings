@@ -20,7 +20,7 @@ urlpatterns = [
     path('delete/<int:voting_id>', delete_voting),
     path('voting/<int:voting_id>/send_report/', send_report),
     path('reports/', reports),
-    path('reports/<int:report_id>/delete/', delete_report),
+    path('reports/<int:report_id>/delete/', close_report),
 ]
 
 

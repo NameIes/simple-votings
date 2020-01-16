@@ -305,15 +305,18 @@ def send_report(request, voting_id):
 @login_required
 def reports(request):
     context = {}
-    context['reports'] = Report.objects.all()
+    context['reports'] = Report.objects.filter(closed=False)
+    context['user_reports'] = Report.objects.filter(user=request.user)
 
     return render(request, 'reports.html', context)
 
 
 @login_required
-def delete_report(request, report_id):
+def close_report(request, report_id):
     if request.method == 'POST' and request.user.is_superuser:
-        Report.objects.get(id=report_id).delete()
+        r = Report.objects.get(id=report_id)
+        r.closed = True
+        r.save()
         return redirect('/reports/')
 
     return HttpResponse('Ошибка.')

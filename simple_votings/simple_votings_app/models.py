@@ -165,6 +165,7 @@ class Profile(models.Model):
 class Report(models.Model):
     voting = models.ForeignKey(to=Voting, on_delete=models.CASCADE)
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    closed = models.BooleanField(default=False)
 
     message = models.CharField(max_length=500)
 

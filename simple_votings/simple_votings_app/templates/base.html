@@ -19,10 +19,10 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/create/">Создать голосование</a>
                 </li>
-                {% if user.is_superuser %}
-                    <li class="nav-item">
+                <li class="nav-item">
                         <a class="nav-link" href="/reports/">Жалобы</a>
                     </li>
+                {% if user.is_superuser %}
                     <li class="nav-item">
                         <a class="nav-link" href="/admin/">Админ панель</a>
                     </li>
