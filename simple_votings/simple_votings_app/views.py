@@ -20,7 +20,7 @@ from PIL import Image
 from django.core.files.storage import FileSystemStorage
 
 
-#@login_required
+# @login_required
 def voting(request, voting_id):
     context = {}
     context['voting'] = Voting.objects.get(id=voting_id)
@@ -69,11 +69,9 @@ def vote(request, answer):
     if request.method == 'POST':
         if not VotingAnswer.objects.get(id=answer).voting.is_anonymous_allowed:
             vote_registered(request, answer)
-            return redirect('/voting/' + str(VotingAnswer.objects.get(id=answer).voting.id))
         else:
             vote_anonymous(request, answer)
-            return redirect('/voting/' + str(VotingAnswer.objects.get(id=answer).voting.id))
-
+    return redirect('/voting/' + str(VotingAnswer.objects.get(id=answer).voting.id))
 
 
 @login_required
