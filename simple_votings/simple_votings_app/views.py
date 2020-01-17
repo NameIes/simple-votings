@@ -165,6 +165,7 @@ def voting_edit(request, voting_id):
             answers = request.POST.getlist('answer')
             end_time = request.POST['end_time']
             is_multiple = request.POST.get('is_multiple', None)
+            is_anonymous_allowed = request.POST.get('is_anonymous_allowed', None)
 
             if voting_item.text != question:
                 voting_item.text = question
@@ -183,6 +184,11 @@ def voting_edit(request, voting_id):
                 voting_item.is_multiple = False
             else:
                 voting_item.is_multiple = True
+
+            if is_anonymous_allowed is None:
+                voting_item.is_anonymous_allowed = False
+            else:
+                voting_item.is_anonymous_allowed = True
             voting_item.save()
 
             for answer_item in voting_item.answers():
