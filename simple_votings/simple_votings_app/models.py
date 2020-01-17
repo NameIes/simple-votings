@@ -24,7 +24,7 @@ class Voting(models.Model):
         return VotingAnswer.objects.filter(voting=self)
 
     def like(self):
-        return "/like/" + str(self.id)
+        return "/like/" + str(self.id) + '/'
 
     def likes(self):
         return Like.objects.filter(voting=self)
@@ -64,7 +64,7 @@ class VotingAnswer(models.Model):
         return self.text
 
     def action(self):
-        return "/vote/" + str(self.id)
+        return "/vote/" + str(self.id) + '/'
 
     def votes(self):
         return Vote.objects.filter(answer=self)

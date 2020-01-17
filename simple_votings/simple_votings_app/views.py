@@ -1,31 +1,35 @@
-from django.contrib.auth.models import User
-
-from .models import Like, Comment, Profile, Report
-from .forms import AddCommentForm
-# -*- coding: utf-8 -*-
-
 from django.db import transaction
-# https://django.fun/docs/ru/3.0/topics/db/transactions/
-
+from django.contrib.auth.models import User
+from django.views.generic.edit import FormView
+from django.contrib.auth.forms import UserCreationForm
+from django.core.files.storage import FileSystemStorage
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, HttpResponse
 
 from .models import Vote, VotingAnswer, Voting
+from .models import Like, Comment, Profile, Report
 from .forms import UserUpdateForm, ProfileUpdateForm
-
-from django.views.generic.edit import FormView
-from django.contrib.auth.forms import UserCreationForm
+from .forms import AddCommentForm
 
 from PIL import Image
-from django.core.files.storage import FileSystemStorage
 
 
-@login_required
+# @login_required
 def voting(request, voting_id):
     context = {}
     context['voting'] = Voting.objects.get(id=voting_id)
     context['form'] = AddCommentForm()
     context['voted_answers'] = []
+
+    try:
+        userlike = Like.objects.get(user=request.user, voting_id=context['voting'])
+    except:
+        userlike = None
+
+    if userlike:
+        context['liked_by_user'] = True
+    else:
+        context['liked_by_user'] = False
 
     for i in context['voting'].answers():
         for j in i.votes():
@@ -34,13 +38,16 @@ def voting(request, voting_id):
 
     if request.method == 'POST':
         form = AddCommentForm(request.POST)
-        if form.is_valid():
+        if form.is_valid() and request.user.is_authenticated:
             comment_item = Comment(
                 text=form.data['comment'],
                 voting=Voting.objects.get(id=voting_id),
                 user=request.user
             )
             comment_item.save()
+        else:
+            return HttpResponse('Вы должны залогиниться для оставления комментария ')
+            # TODO: сделать редирект или более красивое сообщение
 
     return render(request, 'voting.html', context)
 
@@ -49,12 +56,25 @@ def voting(request, voting_id):
 def vote(request, answer):
     if request.method == 'POST':
         answer_item = VotingAnswer.objects.get(id=answer)
+        voting = Voting(id=answer_item.voting)
+
         if request.user not in [i.user for i in answer_item.votes()]:
-            vote_item = Vote(
-                answer=answer_item,
-                user=request.user
-            )
-            vote_item.save()
+            if voting.is_multiple:
+                vote_item = Vote(
+                    answer=answer_item,
+                    user=request.user
+                )
+                vote_item.save()
+            else:
+                # print(voting.answers()) TODO: починить повторную отправку голоса в голосование с одним вариантом ответа
+                # for i in answers:
+                #    if Vote.objects.get(user=request.user,answer=i.id):
+                #        return HttpResponse('Вы пытаетесь отдать второй голос за голосования с одним вариантом ответа')
+                vote_item = Vote(
+                    answer=answer_item,
+                    user=request.user
+                )
+                vote_item.save()
 
     return redirect('/voting/' + str(VotingAnswer.objects.get(id=answer).voting.id))
 
@@ -69,6 +89,12 @@ def like(request, voting_id):
                 user=request.user
             )
             like_item.save()
+        else:
+            like_item = Like.objects.get(
+                voting=voting_item,
+                user=request.user
+            )
+            like_item.delete()
 
     return redirect('/voting/' + str(voting_id))
 
