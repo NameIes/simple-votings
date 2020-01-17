@@ -36,7 +36,7 @@ def voting(request, voting_id):
 
     if request.method == 'POST':
         form = AddCommentForm(request.POST)
-        if form.is_valid() and not Voting.objects.get(id=voting_id).is_anonymous_allowed:
+        if form.is_valid() and request.user.is_authenticated:
             comment_item = Comment(
                 text=form.data['comment'],
                 voting=Voting.objects.get(id=voting_id),
