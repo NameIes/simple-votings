@@ -35,47 +35,64 @@ def voting(request, voting_id):
         for j in i.votes():
             if j.user == request.user:
                 context['voted_answers'].append(i)
+            if j.user_ip == get_client_ip(request):
+                context['voted_answers'].append(i)
 
     if request.method == 'POST':
         form = AddCommentForm(request.POST)
-        if form.is_valid() and request.user.is_authenticated:
+        if not request.user.is_authenticated:
+            return HttpResponse('Вы должны залогиниться для оставления комментария ')
+            # TODO: сделать редирект или более красивое сообщение
+
+        if form.is_valid():
             comment_item = Comment(
                 text=form.data['comment'],
                 voting=Voting.objects.get(id=voting_id),
                 user=request.user
             )
             comment_item.save()
-        else:
-            return HttpResponse('Вы должны залогиниться для оставления комментария ')
-            # TODO: сделать редирект или более красивое сообщение
 
     return render(request, 'voting.html', context)
 
 
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+
 @login_required
+def vote_registered(request, answer):
+    answer_item = VotingAnswer.objects.get(id=answer)
+    if request.user not in [i.user for i in answer_item.votes()]:
+        vote_item = Vote(
+            answer=answer_item,
+            user=request.user
+        )
+        vote_item.save()
+        # TODO: Починить повторную отправку голоса
+
+
+def vote_anonymous(request, answer, ip):
+    if not request.user.is_authenticated:
+        answer_item = VotingAnswer.objects.get(id=answer)
+        if ip not in [i.user_ip for i in answer_item.votes()]:
+            vote_item = Vote(answer=answer_item, user_ip=ip)
+            vote_item.save()
+    else:
+        vote_registered(request, answer)
+
+
 def vote(request, answer):
     if request.method == 'POST':
-        answer_item = VotingAnswer.objects.get(id=answer)
-        voting = Voting(id=answer_item.voting)
-
-        if request.user not in [i.user for i in answer_item.votes()]:
-            if voting.is_multiple:
-                vote_item = Vote(
-                    answer=answer_item,
-                    user=request.user
-                )
-                vote_item.save()
-            else:
-                # print(voting.answers()) TODO: починить повторную отправку голоса в голосование с одним вариантом ответа
-                # for i in answers:
-                #    if Vote.objects.get(user=request.user,answer=i.id):
-                #        return HttpResponse('Вы пытаетесь отдать второй голос за голосования с одним вариантом ответа')
-                vote_item = Vote(
-                    answer=answer_item,
-                    user=request.user
-                )
-                vote_item.save()
-
+        ip = get_client_ip(request)
+        if not VotingAnswer.objects.get(id=answer).voting.is_anonymous_allowed:
+            vote_registered(request, answer)
+        else:
+            vote_anonymous(request, answer, ip)
     return redirect('/voting/' + str(VotingAnswer.objects.get(id=answer).voting.id))
 
 
@@ -133,6 +150,8 @@ def create_voting(request):
                 voting_item.end_time = request.POST.get('end_time')
             if request.POST.get('is_multiple', None) is not None:
                 voting_item.is_multiple = True
+            if request.POST.get('is_anonymous_allowed', None) is not None:
+                voting_item.is_anonymous_allowed = True
             voting_item.save()
 
             for answer in request.POST.getlist('answer'):
@@ -146,6 +165,7 @@ def create_voting(request):
     return render(request, 'createvoting.html', context)
 
 
+# TODO: edit anonymous voting option
 @login_required
 def voting_edit(request, voting_id):
     context = {}
@@ -210,7 +230,6 @@ def delete_voting(request, voting_id):
     return redirect('/')
 
 
-@login_required
 def index(request):
     context = {}
     context['votings'] = Voting.objects.all()

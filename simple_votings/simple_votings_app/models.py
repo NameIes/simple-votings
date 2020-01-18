@@ -11,8 +11,9 @@ class Voting(models.Model):
     start_time = models.DateTimeField(auto_now=True)
     end_time = models.DateField(null=True, default=None)
     is_multiple = models.BooleanField(default=False)
+    is_anonymous_allowed = models.BooleanField(default=False)
 
-    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE, default="anonymous")
 
     def __str__(self):
         return "%s" % (self.text)
@@ -77,7 +78,8 @@ class Vote(models.Model):
     date = models.DateTimeField(auto_now=True)
 
     answer = models.ForeignKey(to=VotingAnswer, on_delete=models.CASCADE)
-    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE, blank=True, null=True)
+    user_ip = models.CharField(max_length=16)
 
 
 class Comment(models.Model):
