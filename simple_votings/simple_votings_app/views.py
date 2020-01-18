@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect, HttpResponse
 
 from .models import Vote, VotingAnswer, Voting
 from .models import Like, Comment, Profile, Report
-from .forms import UserUpdateForm, ProfileUpdateForm
+from .forms import UserUpdateForm, ProfileUpdateForm, SignUpForm
 from .forms import AddCommentForm
 
 from PIL import Image
@@ -307,7 +307,7 @@ def edit_profile(request, user_id):
 
 # https://ustimov.org/posts/17/
 class RegisterFormView(FormView):
-    form_class = UserCreationForm
+    form_class = SignUpForm
     # Ссылка, на которую будет перенаправляться user
     # в случае успешной регистрации
     success_url = "/login/"
