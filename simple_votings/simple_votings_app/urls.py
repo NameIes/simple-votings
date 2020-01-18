@@ -22,7 +22,7 @@ urlpatterns = [
     path('voting/<int:voting_id>/send_report/', send_report),
     path('reports/', reports),
     path('reports/<int:report_id>/delete/', close_report),
-    path('pass-reset/', au_views.PasswordResetView.as_view(template_name='pass_reset.html'), name='pass-reset'),
+    path('login/pass-reset/', au_views.PasswordResetView.as_view(template_name='pass_reset.html'), name='pass-reset'),
     path('password_reset_confirm/<uidb64>/<token>/',
          au_views.PasswordResetConfirmView.as_view(template_name='password_reset_confirm.html'),
          name='password_reset_confirm'),
