@@ -33,9 +33,7 @@ def voting(request, voting_id):
 
     for i in context['voting'].answers():
         for j in i.votes():
-            if j.user == request.user:
-                context['voted_answers'].append(i)
-            if j.user_ip == get_client_ip(request):
+            if j.user == request.user or (j.user_ip == get_client_ip(request) and not request.user.is_authenticated):
                 context['voted_answers'].append(i)
 
     if request.method == 'POST':
@@ -73,26 +71,25 @@ def vote_registered(request, answer):
             user=request.user
         )
         vote_item.save()
-        # TODO: Починить повторную отправку голоса
 
 
-def vote_anonymous(request, answer, ip):
-    if not request.user.is_authenticated:
-        answer_item = VotingAnswer.objects.get(id=answer)
-        if ip not in [i.user_ip for i in answer_item.votes()]:
-            vote_item = Vote(answer=answer_item, user_ip=ip)
-            vote_item.save()
-    else:
-        vote_registered(request, answer)
+def vote_anonymous(request, answer):
+    answer_item = VotingAnswer.objects.get(id=answer)
+    ip = get_client_ip(request)
+    if ip not in [i.user_ip for i in answer_item.votes()]:
+        vote_item = Vote(
+            answer=answer_item,
+            user_ip=ip
+        )
+        vote_item.save()
 
 
 def vote(request, answer):
     if request.method == 'POST':
-        ip = get_client_ip(request)
-        if not VotingAnswer.objects.get(id=answer).voting.is_anonymous_allowed:
+        if request.user.is_authenticated:
             vote_registered(request, answer)
         else:
-            vote_anonymous(request, answer, ip)
+            vote_anonymous(request, answer)
     return redirect('/voting/' + str(VotingAnswer.objects.get(id=answer).voting.id))
 
 
