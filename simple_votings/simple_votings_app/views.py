@@ -162,7 +162,6 @@ def create_voting(request):
     return render(request, 'createvoting.html', context)
 
 
-# TODO: edit anonymous voting option
 @login_required
 def voting_edit(request, voting_id):
     context = {}

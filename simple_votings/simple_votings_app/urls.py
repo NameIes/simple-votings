@@ -18,7 +18,7 @@ urlpatterns = [
     path('profile/<int:user_id>/', profile),
     path('profile/<int:user_id>/edit/', edit_profile),
     path('voting/<int:voting_id>/edit/', voting_edit),
-    path('delete/<int:voting_id>', delete_voting),
+    path('delete/<int:voting_id>/', delete_voting),
     path('voting/<int:voting_id>/send_report/', send_report),
     path('reports/', reports),
     path('reports/<int:report_id>/delete/', close_report),
