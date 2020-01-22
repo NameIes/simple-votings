@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import datetime
 from django.contrib.auth.models import User
 from django.db import models
 from django.contrib import admin
@@ -35,6 +36,11 @@ class Voting(models.Model):
 
     def comments(self):
         return Comment.objects.filter(voting=self)
+
+    def is_ended(self):
+        if self.end_time is None:
+            return False
+        return datetime.date.today() >= self.end_time
 
     def type(self):
         if self.is_multiple and self.end_time:
