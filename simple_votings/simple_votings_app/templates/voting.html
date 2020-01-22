@@ -91,10 +91,10 @@
     <h3>Комментарии:</h3>
     {% if voting.comments %}
         {% for comment in voting.comments %}
-            <div style="background-color: #F0F8FF; margin: 1px;">
-                <h4>{{ comment.user.username }}:</h4>
-                <p>{{ comment.text }}</p>
-                <p>Создан в {{ comment.date }}</p>
+            <div style="background-color: #F0F8FF; margin: 1px; border-bottom-style: outset">
+                <p style="text-align: left; margin-inline-start: 2px; "> Автор комментария {{ comment.user.username }}:</p>
+                <h4 style="text-align: left; margin-inline-start: 10px;">{{ comment.text }}</h4>
+                <p style="text-align: right">Создан в {{ comment.date }}</p>
             </div>
         {% endfor %}
     {% else %}
