@@ -27,7 +27,9 @@
                             </div>
                         </div>
                         {% if ufp == user %}
-                            <a class="btn btn-primary btn-sm btn-block mt-2" href="edit/">Редактировать</a>
+                            <a class="btn btn-primary btn-sm btn-block mt-2" href="/profile/{{ ufp.id }}/edit/">
+                                Редактировать
+                            </a>
                         {% endif %}
                     </div>
                     <div class="col ml-3">
@@ -149,7 +151,7 @@
                                 {% else %}
                                     {% for voting in profile.votings %}
                                         <div class="list-group mt-2">
-                                            <a href="/voting/{{ voting.id }}"
+                                            <a href="/voting/{{ voting.id }}/"
                                                class="list-group-item list-group-item-action">
                                                 <div class="d-flex w-100 justify-content-between">
                                                     <h5 class="mb-1">Тип голосования - {{ voting.type }}</h5>
@@ -172,7 +174,7 @@
                                 {% else %}
                                     {% for vote in profile.votes %}
                                         <div class="list-group mt-2">
-                                            <a href="/voting/{{ vote.answer.voting.id }}"
+                                            <a href="/voting/{{ vote.answer.voting.id }}/"
                                                class="list-group-item list-group-item-action">
                                                 <h5 class="mb-1">
                                                     Проголосовал за {{ vote.answer.text }} в голосовании
@@ -191,7 +193,7 @@
                                 {% else %}
                                     {% for like in profile.likes %}
                                         <div class="list-group mt-2">
-                                            <a href="/voting/{{ like.voting.id }}"
+                                            <a href="/voting/{{ like.voting.id }}/"
                                                class="list-group-item list-group-item-action">
                                                 <h5 class="mb-1">
                                                     Лайкнул голосование {{ like.voting.text }}
@@ -209,7 +211,7 @@
                                 {% else %}
                                     {% for comment in profile.comments %}
                                         <div class="list-group mt-2">
-                                            <a href="/voting/{{ comment.voting.id }}"
+                                            <a href="/voting/{{ comment.voting.id }}/"
                                                class="list-group-item list-group-item-action">
                                                 <h5 class="mb-1">
                                                     Оставил комментарий
