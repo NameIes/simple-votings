@@ -67,6 +67,7 @@ def get_client_ip(request):
 def vote_registered(request, answer):
     answer_item = VotingAnswer.objects.get(id=answer)
     voting_item = answer_item.voting
+    ip = get_client_ip(request)
 
     if voting_item.is_ended():
         return
@@ -79,7 +80,8 @@ def vote_registered(request, answer):
     if request.user not in [i.user for i in answer_item.votes()]:
         vote_item = Vote(
             answer=answer_item,
-            user=request.user
+            user=request.user,
+            user_ip=ip
         )
         vote_item.save()
 
