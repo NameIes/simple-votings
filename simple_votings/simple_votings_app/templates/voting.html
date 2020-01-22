@@ -91,9 +91,12 @@
     <h3>Комментарии:</h3>
     {% if voting.comments %}
         {% for comment in voting.comments %}
-            <div style="background-color: #F0F8FF; margin: 1px; border-bottom-style: outset">
-                <p style="text-align: left; margin-inline-start: 2px; "> Автор комментария {{ comment.user.username }}:</p>
-                <h4 style="text-align: left; margin-inline-start: 10px;">{{ comment.text }}</h4>
+            <div class="media" style="background-color: #F0F8FF; margin: 1px; border-bottom-style: outset">
+                <img src="/media/avatars/{{ user.id }}.png" class="mr-3" alt="..." style="width: 128px; height: 128px;">
+                    <div class="media-body">
+                        <p style="text-align: left; margin-inline-start: 2px; "> Автор комментария {{ comment.user.username }}</p>
+                        <h4 style="text-align: left; margin-inline-start: 10px;">{{ comment.text }}</h4>
+                    </div>
                 <p style="text-align: right">Создан в {{ comment.date }}</p>
             </div>
         {% endfor %}
