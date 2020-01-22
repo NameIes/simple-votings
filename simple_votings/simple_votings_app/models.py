@@ -36,6 +36,12 @@ class Voting(models.Model):
     def comments(self):
         return Comment.objects.filter(voting=self)
 
+    def comments_count(self):
+        return len(self.comments())
+
+    def votes_count(self):
+        return sum([i.votes_count() for i in self.answers()])
+
     def type(self):
         if self.is_multiple and self.end_time:
             return 'Множественный выбор с окончанием'
