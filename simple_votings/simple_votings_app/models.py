@@ -42,6 +42,12 @@ class Voting(models.Model):
             return False
         return datetime.date.today() >= self.end_time
 
+    def comments_count(self):
+        return len(self.comments())
+
+    def votes_count(self):
+        return sum([i.votes_count() for i in self.answers()])
+
     def type(self):
         if self.is_multiple and self.end_time:
             return 'Множественный выбор с окончанием'
