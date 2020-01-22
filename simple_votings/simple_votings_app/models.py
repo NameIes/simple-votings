@@ -91,7 +91,7 @@ class Vote(models.Model):
 
     answer = models.ForeignKey(to=VotingAnswer, on_delete=models.CASCADE)
     user = models.ForeignKey(to=User, on_delete=models.CASCADE, blank=True, null=True)
-    user_ip = models.CharField(max_length=16, default="0.0.0.0")
+    user_ip = models.CharField(max_length=16, default="")
 
 
 class Comment(models.Model):
