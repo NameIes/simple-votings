@@ -10,7 +10,7 @@
                     </div>
                     <div class="col text-right">
                         {% if voting.user == user or user.is_superuser %}
-                            <a href="/voting/{{ voting.id }}/edit" class="btn btn-sm btn-primary">Редактировать</a>
+                            <a href="/voting/{{ voting.id }}/edit/" class="btn btn-sm btn-primary">Редактировать</a>
                         {% else %}
                             <a href="/voting/{{ voting.id }}/send_report/" class="btn btn-sm btn-primary">Пожаловаться</a>
                         {% endif %}

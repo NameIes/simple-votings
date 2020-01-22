@@ -6,7 +6,7 @@
         <div class="card-body">
             {% if votings %}
                 {% for voting in votings %}
-                    <a href="/voting/{{ voting.id }}">{{ voting.text }}</a> <br>
+                    <a href="/voting/{{ voting.id }}/">{{ voting.text }}</a> <br>
                 {% endfor %}
             {% else %}
                 <h3>Голосований нет.</h3>

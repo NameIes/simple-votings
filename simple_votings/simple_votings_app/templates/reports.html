@@ -19,11 +19,11 @@
                                     <div class="card-body">
                                         <h5 class="card-title">
                                             Голосование -
-                                            <a href="/voting/{{ report.voting.id }}">{{ report.voting.text }}</a>
+                                            <a href="/voting/{{ report.voting.id }}/">{{ report.voting.text }}</a>
                                         </h5>
                                         <h6 class="card-subtitle mb-2 text-muted">
                                             Отправил -
-                                            <a href="/profile/{{ report.user.id }}">{{ report.user.username }}</a>
+                                            <a href="/profile/{{ report.user.id }}/">{{ report.user.username }}</a>
                                         </h6>
                                         <hr>
                                         <h6 class="card-subtitle mb-2">Сообщение:</h6>
@@ -52,7 +52,7 @@
                             <div class="card-body">
                                 <h5 class="card-title">
                                     Голосование -
-                                    <a href="/voting/{{ report.voting.id }}">{{ report.voting.text }}</a>
+                                    <a href="/voting/{{ report.voting.id }}/">{{ report.voting.text }}</a>
                                 </h5>
                                 <h6 class="card-subtitle mb-2">
                                     {% if report.closed %}
