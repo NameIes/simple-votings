@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import transaction
 from django.contrib.auth.models import User
 from django.views.generic.edit import FormView
@@ -39,8 +41,7 @@ def voting(request, voting_id):
     if request.method == 'POST':
         form = AddCommentForm(request.POST)
         if not request.user.is_authenticated:
-            return HttpResponse('Вы должны залогиниться для оставления комментария ')
-            # TODO: сделать редирект или более красивое сообщение
+            return redirect('/login/')
 
         if form.is_valid():
             comment_item = Comment(
@@ -65,6 +66,16 @@ def get_client_ip(request):
 @login_required
 def vote_registered(request, answer):
     answer_item = VotingAnswer.objects.get(id=answer)
+    voting_item = answer_item.voting
+
+    if voting_item.is_ended():
+        return
+
+    if not voting_item.is_multiple:
+        for answer in voting_item.answers():
+            if len(answer.votes().filter(user=request.user)) != 0:
+                return
+
     if request.user not in [i.user for i in answer_item.votes()]:
         vote_item = Vote(
             answer=answer_item,
@@ -75,7 +86,17 @@ def vote_registered(request, answer):
 
 def vote_anonymous(request, answer):
     answer_item = VotingAnswer.objects.get(id=answer)
+    voting_item = answer_item.voting
     ip = get_client_ip(request)
+
+    if voting_item.is_ended():
+        return
+
+    if not voting_item.is_multiple:
+        for answer in voting_item.answers():
+            if len(answer.votes().filter(user_ip=ip)) != 0:
+                return
+
     if ip not in [i.user_ip for i in answer_item.votes()]:
         vote_item = Vote(
             answer=answer_item,
@@ -125,6 +146,11 @@ def get_voting_errors(request):
             if not i.strip():
                 errors.append('Не все поля ответов заполнены')
                 break
+        if request.POST.get('end_time'):
+            date = [int(i) for i in request.POST.get('end_time').split('-')]
+            date = datetime.date(date[0], date[1], date[2])
+            if date <= datetime.date.today():
+                errors.append('Нельзя установить прошедшую дату')
     except KeyError:
         errors.append('Что-то не так, перезагрузите страницу')
 
@@ -157,12 +183,11 @@ def create_voting(request):
                     voting=voting_item
                 )
                 answer_item.save()
-        return redirect('/voting/' + str(voting_item.id))
+            return redirect('/voting/' + str(voting_item.id))
 
     return render(request, 'createvoting.html', context)
 
 
-# TODO: edit anonymous voting option
 @login_required
 def voting_edit(request, voting_id):
     context = {}
