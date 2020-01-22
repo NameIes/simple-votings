@@ -92,7 +92,7 @@
     {% if voting.comments %}
         {% for comment in voting.comments %}
             <div class="media" style="background-color: #F0F8FF; margin: 1px; border-bottom-style: outset">
-                <img src="/media/avatars/{{ user.id }}.png" class="mr-3" alt="..." style="width: 128px; height: 128px;">
+                <img src="{{ MEDIA_URL }}{{ comment.user.profile.avatar.url }}" class="mr-3" alt="..." style="width: 128px; height: 128px;">
                     <div class="media-body">
                         <p style="text-align: left; margin-inline-start: 2px; "> Автор комментария {{ comment.user.username }}</p>
                         <h4 style="text-align: left; margin-inline-start: 10px;">{{ comment.text }}</h4>
