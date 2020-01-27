@@ -26,8 +26,8 @@
   
   *  Если вы меняли файл models.py:
 
-         python mange.py makemigrations
-         python mange.py migrate
+         python manage.py makemigrations
+         python manage.py migrate
   
   * Запустите сервер разработки:
 
