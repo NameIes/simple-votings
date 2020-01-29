@@ -2,6 +2,7 @@
 
 {% block main %}
     <div class="card mt-3">
+    <div class="card">
         <div class="card-body">
             <div class="card-body">
                 <div class="row">
@@ -87,28 +88,32 @@
     </div>
     <hr style="margin: 0px;">
 
-    <h3>Добавить комментарий:</h3>
-    <form method="post" action="/voting/{{ voting.id }}/">
-        {% csrf_token %}
-        {{ form.comment }}
-        <input class="btn btn-primary" type="submit" value="Оставить комментарий">
-    </form>
-    <h3>Комментарии:</h3>
-    {% if voting.comments %}
-        {% for comment in voting.comments %}
 
-            <div class="media" style="margin: 20px; border-style: outset">
+    <div class = "card">
+        <h3>Добавить комментарий:</h3>
+        <form method="post" action="/voting/{{ voting.id }}/">
+            {% csrf_token %}
+            {{ form.comment }}
+            <input class="btn btn-primary" type="submit" value="Оставить комментарий">
+        </form>
+        <h3>Комментарии:</h3>
+        {% if voting.comments %}
+            {% for comment in voting.comments %}
 
-                <img src="{{ MEDIA_URL }}{{ comment.user.profile.avatar.url }}" class="mr-3" alt="..." style="width: 8%; height: 8%;">
-                    <div class="media-body">
-                        <p style="text-align: left; margin-inline-start: 2px; "> Автор комментария {{ comment.user.username }}</p>
-                        <h5 style="text-align: left; margin-inline-start: 10px;">{{ comment.text }}</h5>
-                    </div>
-                <p style="text-align: right; margin: 3px">Создан в {{ comment.date }}</p>
-            </div>
-        {% endfor %}
-    {% else %}
-        <p>Комментариев нет</p>
-    {% endif %}
+                <div class="media" style="margin: 20px; border-style: outset">
+                    <img src="{{ MEDIA_URL }}{{ comment.user.profile.avatar.url }}" class="mr-3" alt="..." style="width: 8%; height: 8%;">
+                        <div class="media-body">
+                            <p style="text-align: left; margin-inline-start: 2px; "> Автор комментария {{ comment.user.username }}</p>
+                            <h5 style="text-align: left; margin-inline-start: 10px;">{{ comment.text }}</h5>
+                        </div>
+                    <p style="text-align: right; margin: 3px">Создан в {{ comment.date }}</p>
+                </div>
+
+            {% endfor %}
+        {% else %}
+            <p>Комментариев нет</p>
+        {% endif %}
     </div>
+    </div>
+
 {% endblock %}
